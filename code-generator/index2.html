@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+* {
+  box-sizing: border-box;
+}
+
+input[type=text], select, textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  resize: vertical;
+}
+
+label {
+  padding: 12px 12px 12px 0;
+  display: inline-block;
+}
+
+body {
+    font-family: "Roboto", sans-serif;
+    background-color: #1C1E25;
+    line-height: 1.9;
+    color: #8c8c8c; }
+  
+  h1, h2, h3, h4, h5, h6,
+  .h1, .h2, .h3, .h4, .h5, .h6 {
+    font-family: "Roboto", sans-serif;
+    color: #BABABA; }
+  
+  .content {
+    padding: 7rem 0; }
+  
+  .heading {
+    font-size: 2.5rem;
+    font-weight: 500; }
+
+  .box {
+    padding: 40px;
+    -webkit-box-shadow: -30px 30px 0px 0 rgba(0, 0, 0, 0.08);
+    box-shadow: -30px 30px 0px 0 rgba(0, 0, 0, 0.08); }
+    .box h3 {
+      font-size: 14px;
+      margin-bottom: 30px;
+      text-align: center; }
+
+    input {
+        color: #BABABA;
+        background-color: #252731;
+        border: 10px!important;
+    }
+
+    textarea {
+        color: #BABABA;
+        background-color: #252731;
+        border: 10px!important;   
+    }
+
+    #information {
+        padding-top: 10px;
+        padding-left: 20px
+    }
+
+    button {
+        color: #BABABA;
+        background-color: #252731;
+        position: relative;
+        display: inline-block;
+        margin-top: 10px;
+        padding: 5px 16px;
+        font-size: 12px;
+        font-weight: 300;
+        line-height: 20px;
+        white-space: nowrap;
+        vertical-align: middle;
+        cursor: pointer;
+        user-select: none;
+        box-shadow: 0 1px 0 rgba(27,31,35,.04),inset 0 1px 0 rgba(255,255,255,.25);
+        transition: background-color .2s cubic-bezier(0.3, 0, 0.5, 1);
+        border-radius: 25px;
+        text-transform: uppercase;
+        background-color: var(--stat-background-dark);
+    }
+
+    a { 
+        color: #448994
+    }
+  
+    #p134_wrapper {
+        padding-left : 20px;
+        padding-right : 20px;
+        width : 640px;
+        overflow : hidden";
+    }
+
+    .p134_statosio {
+        height : 300px;
+        width : 600px;
+        overflow : hidden;
+        background-color : #252731;
+        display: flex;
+  justify-content: center;
+  align-items: center;
+    }
+
+</style>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/6.2.0/d3.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/statosio/0.9/statosio.js"></script>
+
+<script src="validation.js"></script>
+<script src="wordpress-shortcode.js"></script>
+<script src="ui.js"></script>
+</head>
+<body>
+    <div id="p134_wrapper">
+        <h3>Preview</h3>
+        <div id="d3_statosio" class="p134_statosio"></div>
+        <button class="btn" onclick="load_dataset()">Load Dataset</button>
+        <span id="information">More Information <a href="https://d3.statosio.com/options/">https://d3.statosio.com/options/</a></span>
+        <br><br>
+        <div id="p134_inputs"></div>
+        <br>
+    
+        <span><b>Validation</b></span><br>
+        <span id="errors"></span>
+    
+    
+        <h3>Javascript</h3>
+        <textarea id="p134_code_javascript" name="example" rows="4" cols="50"></textarea>
+        <br>
+        <button onclick="button_code_copy('javascript')">Copy Shortcode</button>
+        <br>
+        <h3>Ruby</h3>
+        <textarea id="p134_code_ruby" name="example" rows="4" cols="50"></textarea>
+        <br>
+        <button onclick="button_code_copy('ruby')">Copy Shortcode</button>
+        <br>
+        <h3>Wordpress Shortcode</h3>
+        <textarea id="p134_code_wordpress" name="example" rows="4" cols="50"></textarea>
+        <br>
+        <button onclick="button_code_copy('wordpress')">Copy Shortcode</button>
+        <br>
+        <span id="error"></span>
+        <br>
+        <br>
+    </div>
+</body>
+</html>
+
+<script>
+    var struct = {
+        'elements' : {
+            'dataset': {
+                'name': '<b>dataset</b>',
+                'default': 'https://d3.statosio.com/data/performance.json',
+            },
+            'y': {
+                'name': '<b>y</b>',
+                'default': 'name',
+            },
+            'x': {
+                'name': '<b>x</b>',
+                'default': '["mobile"]',
+            }, 
+            'options': {
+                'name': '<b>options</b>',
+                'default': '{ "styleColorSelectorsChart": ["#E2B08E", "#CC8074"],"styleColorCanvasBackground":"none","styleColorGridline":"#2F3138","styleStrokeGridline":1,"styleColorFont":"#BABABA","styleColorSelectorsText":["#E2B08E", "#BABABA"],"showAverage":false}',
+            }
+        },
+        'dataset': {
+            'url' : null,
+            'content' : null
+        },
+        'valid': false 
+    }
+
+    struct['dataset']['url'] = struct['elements']['dataset']['default']
+
+
+    Object
+        .keys( struct['elements'] )
+        .forEach( ( key ) => {
+            console.log( key )
+            let main = document.getElementById( 'p134_inputs' )
+            console.log( main)
+            let headline = document.createElement( 'span' )
+            headline.innerHTML = struct['elements'][ key ]['name']
+            main.appendChild( headline )
+            main.appendChild( document.createElement( 'br' ) )
+
+            let input = document.createElement( 'input' )
+            input.type = 'text'
+            input.id = key
+            input.value = struct['elements'][ key ]['default']
+            main.appendChild( input )
+            main.appendChild( document.createElement( 'br' ) )
+
+
+            let error = document.createElement( 'span' )
+            error.id = key + '_error'
+            main.appendChild( error )
+            document
+                .getElementById( key )
+                .addEventListener( 'input', function( value ) { 
+                    validations()
+                    wordpress_shortcodes() 
+                    javascript_shortcodes()
+                    ruby_shortcodes()
+                    preview_chart() 
+            } )
+    } )
+
+
+    validations()
+    wordpress_shortcodes()
+    javascript_shortcodes()
+    ruby_shortcodes()
+    load_dataset()
+    
+
+</script>

@@ -1,0 +1,120 @@
+<link rel="stylesheet" href="style.css">
+<div>
+    <h2>Statosio</h2>
+    <h3>Preview</h3>
+    <div id="d3_statosio" style="height:300px;width:600px;overflow:hidden;background-color:green"></div>
+    <br>
+    <br>
+    <button onclick="load_dataset()">Load Dataset</button>
+    <br><br>
+    <div id="p134_inputs"></div>
+    <br>
+
+    <span><b>Validation</b></span><br>
+    <span id="errors"></span>
+
+
+    <h3>Javascript</h3>
+    <textarea id="p134_code_javascript" name="example" rows="4" cols="50"></textarea>
+    <br>
+    <button onclick="button_code_copy('javascript')">Copy Shortcode</button>
+    <br>
+    <br>
+    <h3>Ruby</h3>
+    <textarea id="p134_code_ruby" name="example" rows="4" cols="50"></textarea>
+    <br>
+    <button onclick="button_code_copy('ruby')">Copy Shortcode</button>
+    <br>
+    <br>
+    <h3>Wordpress Shortcode</h3>
+    <textarea id="p134_code_wordpress" name="example" rows="4" cols="50"></textarea>
+    <br>
+    <button onclick="button_code_copy('wordpress')">Copy Shortcode</button>
+    <br>
+    <br>
+    <span id="error"></span>
+    <br>
+    <br>
+</div>
+
+
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/6.2.0/d3.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/statosio/0.9/statosio.js"></script>
+
+<script src="validation.js"></script>
+<script src="wordpress-shortcode.js"></script>
+<script src="ui.js"></script>
+
+<script>
+    var struct = {
+        'elements' : {
+            'dataset': {
+                'name': '<b>dataset</b>',
+                'default': 'https://d3.statosio.com/data/performance.json',
+            },
+            'y': {
+                'name': '<b>y</b>',
+                'default': 'name',
+            },
+            'x': {
+                'name': '<b>x</b>',
+                'default': '["mobile","desktop"]',
+            }, 
+            'options': {
+                'name': '<b>options</b>',
+                'default': '{}',
+            }
+        },
+        'dataset': {
+            'url' : null,
+            'content' : null
+        },
+        'valid': false 
+    }
+
+    struct['dataset']['url'] = struct['elements']['dataset']['default']
+
+
+    Object
+        .keys( struct['elements'] )
+        .forEach( ( key ) => {
+            let main = document.getElementById( 'p134_inputs' )
+
+            let headline = document.createElement( 'span' )
+            headline.innerHTML = struct['elements'][ key ]['name']
+            main.appendChild( headline )
+            main.appendChild( document.createElement( 'br' ) )
+
+            let input = document.createElement( 'input' )
+            input.type = 'text'
+            input.id = key
+            input.value = struct['elements'][ key ]['default']
+            main.appendChild( input )
+            main.appendChild( document.createElement( 'br' ) )
+            main.appendChild( document.createElement( 'br' ) )
+
+            let error = document.createElement( 'span' )
+            error.id = key + '_error'
+            main.appendChild( error )
+            document
+                .getElementById( key )
+                .addEventListener( 'input', function( value ) { 
+                    validations()
+                    wordpress_shortcodes() 
+                    javascript_shortcodes()
+                    ruby_shortcodes()
+                    preview_chart() 
+            } )
+    } )
+
+
+    validations()
+    wordpress_shortcodes()
+    javascript_shortcodes()
+    ruby_shortcodes()
+    load_dataset()
+    
+
+</script>
