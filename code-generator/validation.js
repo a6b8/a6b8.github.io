@@ -57,8 +57,6 @@ function validations() {
             errors.push( validation( key ) )
         })
 
-    
-
     struct['valid'] = errors.join('') === ''
     if( !struct['valid'] ) {
         html = 'Error(s):<br>'
@@ -68,7 +66,4 @@ function validations() {
             })
         document.getElementById('d3_statosio').innerHTML = html
     }
-
-    
-    //valid ? document.getElementById('errors').innerHTML = ' OK' : ''
 }
