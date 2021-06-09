@@ -358,7 +358,7 @@ function codes() {
     function javascript() {
         let template = 
         "<!DOCTYPE html>\n" + 
-        "<head>\n"
+        "<head>\n" +
         "\t<title>Statosio - Javascript Sandbox Demo</title>\n" + 
         "\t<meta content=\"text/html;charset=utf-8\" http-equiv=\"Content-Type\">\n" + 
         "\t<meta content=\"utf-8\" http-equiv=\"encoding\">\n" + 
@@ -368,17 +368,17 @@ function codes() {
         "<body>\n" + 
         "\t<script>\n" + 
         "\t\/\/ Load Sample Dataset\n" + 
-        "\t\td3.json( \"<<--dataset-->>\" )\n"
-        "\t\t\t.then( ( file ) => {\n"
+        "\t\td3.json( \"<<--dataset-->>\" )\n" +
+        "\t\t\t.then( ( file ) => {\n" +
         "\t\t\t\t// Generate chart\n" + 
         "\t\t\t\t\td3.statosio(\n" + 
         "\t\t\t\t\tfile,\n" +
         "\t\t\t\t\t\"<<--y-->>\",\n" +
         "\t\t\t\t\t<<--x-->>,\n" +
         "\t\t\t\t\t<<<--options-->>\n" +
-        "\t\t\t\t\t)" + 
-        "\t\t\t\t} )" +
-        "\t\t<\/script>" + 
+        "\t\t\t\t\t)\n" + 
+        "\t\t\t\t} )\n" +
+        "\t\t<\/script>\n" + 
         "<\/body>\n"
 
         Object
