@@ -87,7 +87,7 @@ function codes() {
         function value_prepare( key, value ) {
             switch( key ) {
                 case 'options':
-                    value = value.replaceAll( '":', "=>" )
+                    value = value.replaceAll( '":', '" =>' )
                     break;
             }
             return value
