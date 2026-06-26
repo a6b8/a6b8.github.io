@@ -8,8 +8,10 @@
         "node": ">=22"
     },
     "scripts": {
-        "dev": "astro dev",
-        "build": "astro build",
+        "sync-spec": "node scripts/sync-spec.mjs",
+        "fetch-refs": "node scripts/fetch-refs.mjs",
+        "dev": "npm run sync-spec && astro dev",
+        "build": "npm run sync-spec && npm run fetch-refs && astro build",
         "preview": "astro preview"
     },
     "dependencies": {

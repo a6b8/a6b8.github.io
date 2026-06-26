@@ -9,3 +9,7 @@ coverage/
 dist/
 .astro/
 .cache/
+
+# Synced from a6b8-spec by scripts/sync-spec.mjs (do not commit — regenerated at build)
+src/content/docs/specification/
+src/data/manifest.json
