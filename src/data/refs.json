@@ -1,0 +1,28 @@
+{
+    "schemaVersion": "refs/1.0.0",
+    "spec": {
+        "currentVersion": "0.1.0",
+        "specRepo": "https://github.com/a6b8/a6b8-spec",
+        "llmsTxtUrl": "https://a6b8.github.io/llms-full.txt"
+    },
+    "docs": {
+        "canonical": "https://a6b8.github.io",
+        "entryPoints": {
+            "overview": "/specification/overview/"
+        }
+    },
+    "github": {
+        "organization": "https://github.com/a6b8",
+        "specRepo": "https://github.com/a6b8/a6b8-spec"
+    },
+    "llmsFiles": {
+        "indexUrl": "https://a6b8.github.io/llms.txt",
+        "fullUrl": "https://a6b8.github.io/llms-full.txt"
+    },
+    "robotsTxt": {
+        "publishedLlmsFiles": [
+            "/llms.txt",
+            "/llms-full.txt"
+        ]
+    }
+}

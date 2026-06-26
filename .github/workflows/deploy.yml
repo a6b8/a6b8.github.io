@@ -2,11 +2,18 @@ name: Deploy to GitHub Pages
 
 # User-Pages site (a6b8.github.io) — served at https://a6b8.github.io (root).
 # GitHub Pages source must be set to "GitHub Actions" in the repo settings.
+#
+# The build pulls the spec docs payload from the sibling a6b8-spec repo (checked out
+# into _spec) via SPEC_REPO_DIR, then runs the site build (sync-spec -> fetch-refs ->
+# astro build). A repository_dispatch of type "spec-updated" (sent by a6b8-spec when its
+# generated artifacts change) re-triggers this deploy.
 
 on:
   push:
     branches: [main]
   workflow_dispatch:
+  repository_dispatch:
+    types: [spec-updated]
 
 permissions:
   contents: read
@@ -23,10 +30,30 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Build with Astro
-        uses: withastro/action@v3
+
+      - name: Checkout spec repo (source of docs payload)
+        uses: actions/checkout@v4
+        with:
+          repository: a6b8/a6b8-spec
+          path: _spec
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
           node-version: 22
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build
+        run: npm run build
+        env:
+          SPEC_REPO_DIR: ${{ github.workspace }}/_spec
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./dist
 
   deploy:
     needs: build
