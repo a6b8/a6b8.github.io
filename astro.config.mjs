@@ -32,7 +32,7 @@ export default defineConfig({
     },
     integrations: [
         starlight({
-            title: 'Personal Brand',
+            title: 'a6b8',
             logo: {
                 src: './src/assets/logo.svg',
                 replacesTitle: true
@@ -48,7 +48,7 @@ export default defineConfig({
                 { tag: 'meta', attrs: { property: 'og:image', content: 'https://a6b8.github.io/og-default.png' } },
                 { tag: 'meta', attrs: { name: 'twitter:image', content: 'https://a6b8.github.io/og-default.png' } },
                 // Bug 10 fix: RSS feed autodiscovery (feed readers / browser extensions).
-                { tag: 'link', attrs: { rel: 'alternate', type: 'application/rss+xml', title: 'Personal Brand Blog', href: '/blog/rss.xml' } }
+                { tag: 'link', attrs: { rel: 'alternate', type: 'application/rss+xml', title: 'a6b8 Blog', href: '/blog/rss.xml' } }
             ],
             customCss: [
                 './src/styles/theme.css',
@@ -65,8 +65,11 @@ export default defineConfig({
             social: [
                 { icon: 'github', label: 'GitHub', href: 'https://github.com/a6b8' }
             ],
+            // Nav (Memo 017 T003): "Docs" removed from the top-level nav — visitors
+            // care about the Blog, not the docs/spec ("Docs und Spezifikation checkt
+            // eh niemand"). The Docs pages still build and stay reachable by URL
+            // (/docs/overview/), they are just no longer a top-level sidebar group.
             sidebar: [
-                { label: 'Docs', autogenerate: { directory: 'docs' } },
                 {
                     label: 'Specification',
                     collapsed: false,

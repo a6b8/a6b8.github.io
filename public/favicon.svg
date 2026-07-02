@@ -1,9 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="a6b8">
   <title>a6b8</title>
   <!-- square variant: ascending-bars spark only (no wordmark), explicit colors
-       (Memo 015 F2 = A) — source for org avatar + favicons (P7 generator). -->
+       (Memo 015 F2; recolored Memo 017 F4 = A, #f5b74d -> #79b8c9). -->
   <rect width="64" height="64" rx="12" fill="#0d1117" />
-  <g fill="#f5b74d">
+  <g fill="#79b8c9">
     <rect x="14" y="38" width="9" height="14" rx="3" />
     <rect x="28" y="26" width="9" height="26" rx="3" />
     <rect x="42" y="12" width="9" height="40" rx="3" />
