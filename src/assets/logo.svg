@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 150 40" role="img" aria-label="a6b8" fill="none">
+  <title>a6b8</title>
+  <!--
+    a6b8 personal wordmark (Memo 015, F2 = A). Bespoke mark — NOT the memo-init
+    memo-card glyph. Glyph = an ascending three-bar spark (growth / signal) in the
+    warm Amber/Gold accent; wordmark in text-primary. Colors are hardcoded because
+    Starlight embeds the logo as <img>, where page CSS variables do not resolve.
+  -->
+  <g fill="#f5b74d">
+    <rect x="6"  y="24" width="6" height="10" rx="2" />
+    <rect x="16" y="16" width="6" height="18" rx="2" />
+    <rect x="26" y="6"  width="6" height="28" rx="2" />
+  </g>
+  <text x="44" y="28"
+        font-family="ui-monospace, 'SFMono-Regular', 'JetBrains Mono', Menlo, Consolas, monospace"
+        font-size="24" font-weight="700" letter-spacing="-0.5"
+        fill="#f0f6fc">a6b8</text>
+</svg>

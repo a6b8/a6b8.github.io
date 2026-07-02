@@ -1,25 +1,25 @@
 ---
 title: Personal Brand
-description: A personal brand website built with Astro and Starlight.
+description: Notes, specifications, and experiments — built in the open.
 template: splash
-hero:
-  tagline: A minimal personal brand website — placeholder content for now.
-  actions:
-    - text: Read the docs
-      link: /docs/overview/
-      icon: right-arrow
-    - text: Blog
-      link: /blog/
-      variant: minimal
 ---
 
 import { Card, CardGrid } from '@astrojs/starlight/components';
+import FluidHero from '../../components/FluidHero.astro';
+
+<FluidHero title="Personal Brand" tagline="Notes, specifications, and experiments — built in the open.">
+    <a class="sl-link-button primary" href="/docs/overview/">Read the docs</a>
+    <a class="sl-link-button minimal" href="/blog/">Read the blog</a>
+</FluidHero>
 
 <CardGrid>
     <Card title="Docs" icon="open-book">
-        Documentation and reference. Coming soon.
+        Guides and reference for the project.
+    </Card>
+    <Card title="Specification" icon="document">
+        The living spec — conventions, standards, and rationale.
     </Card>
     <Card title="Blog" icon="pencil">
-        Posts and updates. Coming soon.
+        Posts, notes, and updates.
     </Card>
 </CardGrid>

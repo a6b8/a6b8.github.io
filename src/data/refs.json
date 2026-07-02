@@ -17,6 +17,7 @@
     },
     "llmsFiles": {
         "indexUrl": "https://a6b8.github.io/llms.txt",
+        "docsUrl": "https://a6b8.github.io/docs-llms.txt",
         "fullUrl": "https://a6b8.github.io/llms-full.txt"
     },
     "robotsTxt": {

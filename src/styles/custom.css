@@ -1,0 +1,79 @@
+/* custom.css — (Memo 015, Kap 6). Complements theme.css: Mermaid card + lightbox.
+ * Ported from memo-init, plus a focusable close button + focus-visible ring
+ * (Bug 5 a11y fix companion). The "Copy as Markdown" button styles live in the
+ * HeaderCopyButton component (scoped).
+ */
+
+/* ============ MERMAID ============
+ * Light card background for bare rehype-mermaid inline-svg (dark lines on a dark
+ * canvas are otherwise hard to read) + fullscreen lightbox.
+ */
+.sl-markdown-content svg[id^="mermaid"] {
+    display: block;
+    max-width: 100%;
+    margin: 1.5rem auto;
+    padding: 1.25rem;
+    background: #f6f8fa;
+    border: 1px solid #d0d7de;
+    border-radius: 8px;
+    cursor: zoom-in;
+}
+
+/* Bug 5/7 companion: visible focus ring on the keyboard-operable diagram. */
+.sl-markdown-content svg[id^="mermaid"]:focus-visible {
+    outline: 2px solid var(--accent, #f5b74d);
+    outline-offset: 3px;
+}
+
+.mermaid-overlay {
+    position: fixed;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    background: rgba( 13, 17, 23, 0.85 );
+    z-index: 1000;
+    cursor: zoom-out;
+}
+
+.mermaid-overlay.is-open {
+    display: flex;
+}
+
+.mermaid-overlay__stage {
+    width: 90vw;
+    height: 90vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f6f8fa;
+    border-radius: 8px;
+    padding: 1.5rem;
+    overflow: auto;
+    cursor: default;
+}
+
+.mermaid-overlay__close {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    background: var(--bg-card, #161b22);
+    color: var(--text-primary, #f0f6fc);
+    border: 1px solid var(--border, #30363d);
+    border-radius: 8px;
+    cursor: pointer;
+    z-index: 1001;
+}
+
+.mermaid-overlay__close:hover,
+.mermaid-overlay__close:focus-visible {
+    color: var(--accent, #f5b74d);
+    border-color: var(--accent, #f5b74d);
+    outline: none;
+}
