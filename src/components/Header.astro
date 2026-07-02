@@ -17,8 +17,11 @@ const shouldRenderSearch =
 
 const path = Astro.url.pathname;
 
+// Nav (Memo 017 T003): "Docs" removed — only Specification + Blog. The Docs pages
+// still build and stay reachable by URL (/docs/overview/), they are just no longer
+// a top-level nav item ("Docs und Spezifikation checkt eh niemand"; Blog is the
+// visitor entry point).
 const navLinks = [
-    { text: 'Docs', href: '/docs/overview/', match: '/docs' },
     { text: 'Spec', href: '/specification/overview/', match: '/specification' },
     { text: 'Blog', href: '/blog/', match: '/blog' }
 ];

@@ -1,20 +1,25 @@
 ---
-// src/components/FluidHero.astro — bespoke landing-only "Aurora Spotlight" hero
-// (Memo 015, Kap 6; spec: context/015-website-relaunch-research/03-fluid-landing-research.md).
+// src/components/FluidHero.astro — bespoke landing-only "Aurora" hero.
 //
-// Zero deps. Renders a static WARM aurora by default (pure CSS = the
-// prefers-reduced-motion baseline); the client script UPGRADES to an interactive,
-// compositor-only cursor-follow glow only when it is safe (fine pointer, motion OK,
-// capable device). 3-tier auto-select: Full / Reduced / Static. No canvas, no WebGL,
-// no filter:blur — softness comes from radial-gradient falloff. The rAF loop
-// self-stops at rest / off-screen / hidden tab, so it costs ~0% CPU idle.
-const { title = 'Personal Brand', tagline = '' } = Astro.props
+// Memo 017 (F4/F5, T006/T007/T008): the aurora is a FULL-BLEED `position: fixed;
+// inset: 0` layer behind the entire landing — this fixes the old "shield"/framed-
+// card look (T007), which came from the aurora being clipped inside a bordered,
+// negative-margin section. Palette is now cool + restrained (low-saturation cyan,
+// F4); softness comes from a strong `filter: blur()` (F5) over the near-black
+// canvas with `mix-blend-mode: screen`; drift is very slow and transform-only.
+// Zero deps, no canvas, no WebGL. The 3-tier auto-select stays: Full (cursor glow)
+// / Reduced (slow ambient drift) / Static (pure CSS). The rAF loop self-stops at
+// rest / hidden tab, so it costs ~0% CPU idle. The component only renders on the
+// landing, so the fixed layer exists there only.
+const { title = 'a6b8', tagline = '' } = Astro.props
 ---
-<section class="fluid-hero" data-fluid-hero>
-    <div class="fh-aurora" aria-hidden="true"></div>
-    <div class="fh-blob fh-blob--lead" aria-hidden="true"></div>
-    <div class="fh-blob fh-blob--trail" aria-hidden="true"></div>
+<div class="fh-bg" data-fluid-hero aria-hidden="true">
+    <div class="fh-aurora"></div>
+    <div class="fh-blob fh-blob--lead"></div>
+    <div class="fh-blob fh-blob--trail"></div>
+</div>
 
+<section class="fluid-hero">
     <div class="fh-content">
         <h1 class="fh-title">{title}</h1>
         {tagline && <p class="fh-tagline">{tagline}</p>}
@@ -23,24 +28,31 @@ const { title = 'Personal Brand', tagline = '' } = Astro.props
 </section>
 
 <style>
+    /* FULL-BLEED fixed layer behind the whole landing (T007 fix). It sits above the
+     * html canvas gradient and below content — the Starlight panels are already
+     * transparent (theme.css), so it shows through. No border, no radius, no
+     * negative margins: full-bleed, not a framed "shield". */
+    .fh-bg {
+        position: fixed;
+        inset: 0;
+        z-index: -1;
+        pointer-events: none;
+        overflow: hidden;
+        /* CSS vars the script writes (viewport px); default = centred-ish */
+        --tx: 50vw; --ty: 40vh;
+        --tx2: 50vw; --ty2: 40vh;
+    }
+
     .fluid-hero {
         position: relative;
-        overflow: clip;
-        min-height: clamp(26rem, 68vh, 42rem);
+        min-height: clamp(24rem, 62vh, 40rem);
         display: grid;
         place-items: center;
-        margin: -1.5rem -1.5rem 1.5rem;
-        border-radius: 0 0 18px 18px;
-        /* two CSS vars the script writes; default = centered */
-        --tx: 50%; --ty: 40%;
-        --tx2: 50%; --ty2: 40%;
-        background: var(--bg-canvas, #0d1117);
-        isolation: isolate;
     }
 
     .fh-content {
         position: relative;
-        z-index: 2;
+        z-index: 1;
         text-align: center;
         padding: 2rem 1.5rem;
         max-width: 46rem;
@@ -54,7 +66,8 @@ const { title = 'Personal Brand', tagline = '' } = Astro.props
         letter-spacing: -0.03em;
         margin: 0;
         color: var(--text-primary, #f0f6fc);
-        background: linear-gradient(180deg, #ffffff 0%, #ffe6b0 100%);
+        /* cool white -> soft cyan (T006), replaces the old white -> warm amber */
+        background: linear-gradient(180deg, #ffffff 0%, #cfe8f0 100%);
         -webkit-background-clip: text;
         background-clip: text;
         -webkit-text-fill-color: transparent;
@@ -74,50 +87,49 @@ const { title = 'Personal Brand', tagline = '' } = Astro.props
         margin-top: 2rem;
     }
 
-    /* STATIC WARM AURORA — always on, pure CSS, cheap. reduced-motion baseline. */
+    /* STATIC COOL AURORA — always on, pure CSS. Soft light via big blur + screen
+     * blend over the near-black canvas (F5). reduced-motion / weak-device baseline. */
     .fh-aurora {
         position: absolute;
-        inset: -20%;
-        z-index: 0;
-        pointer-events: none;
+        inset: -25%;
         background:
-            radial-gradient(40% 55% at 30% 30%, hsl(38 95% 58% / .30), transparent 70%),
-            radial-gradient(45% 50% at 72% 62%, hsl(45 98% 62% / .24), transparent 70%),
-            radial-gradient(35% 45% at 50% 82%, hsl(24 92% 56% / .20), transparent 70%);
-        filter: saturate(1.08);
+            radial-gradient(38% 50% at 28% 30%, hsl(193 45% 55% / 0.28), transparent 70%),
+            radial-gradient(42% 48% at 74% 60%, hsl(205 42% 58% / 0.22), transparent 70%),
+            radial-gradient(34% 44% at 52% 84%, hsl(184 38% 50% / 0.18), transparent 70%);
+        filter: blur(90px) saturate(1.02);
+        will-change: transform;
     }
 
-    /* CURSOR BLOBS — soft gradient falloff (NO filter:blur), transform-only. */
+    /* CURSOR BLOBS — soft light, transform-only, strong blur (F5). */
     .fh-blob {
         position: absolute;
-        z-index: 1;
-        pointer-events: none;
-        width: 42rem;
-        height: 42rem;
+        width: 46rem;
+        height: 46rem;
         left: 0;
         top: 0;
-        margin-left: -21rem;
-        margin-top: -21rem;
-        background: radial-gradient(closest-side, hsl(42 98% 62% / .40), transparent 70%);
+        margin-left: -23rem;
+        margin-top: -23rem;
+        background: radial-gradient(closest-side, hsl(193 48% 60% / 0.30), transparent 70%);
         transform: translate3d(var(--tx), var(--ty), 0);
+        filter: blur(60px);
         will-change: transform;
         mix-blend-mode: screen;
     }
     .fh-blob--trail {
-        width: 30rem;
-        height: 30rem;
-        margin-left: -15rem;
-        margin-top: -15rem;
-        background: radial-gradient(closest-side, hsl(28 95% 58% / .32), transparent 70%);
+        width: 32rem;
+        height: 32rem;
+        margin-left: -16rem;
+        margin-top: -16rem;
+        background: radial-gradient(closest-side, hsl(205 44% 56% / 0.24), transparent 70%);
         transform: translate3d(var(--tx2), var(--ty2), 0);
     }
 
-    /* REDUCED tier: slow ambient drift, compositor-only, no input needed. */
+    /* REDUCED tier: very slow ambient drift, compositor-only (transform, F5). */
     @media (prefers-reduced-motion: no-preference) {
-        .fh-aurora { animation: fh-drift 24s ease-in-out infinite alternate; }
+        .fh-aurora { animation: fh-drift 18s ease-in-out infinite alternate; }
     }
     @keyframes fh-drift {
-        to { transform: translate3d(2%, -2%, 0) scale(1.04); }
+        to { transform: translate3d(2%, -2%, 0) scale(1.05); }
     }
 
     /* Static tier: never expose blob motion to reduced-motion users. */
@@ -127,15 +139,18 @@ const { title = 'Personal Brand', tagline = '' } = Astro.props
     }
 
     @media (max-width: 50rem) {
-        .fluid-hero { margin: -1rem -0.75rem 1rem; min-height: clamp(22rem, 60vh, 32rem); }
+        .fluid-hero { min-height: clamp(20rem, 54vh, 30rem); }
+        .fh-aurora { filter: blur(70px) saturate(1.02); }
     }
 </style>
 
 <script>
-    // Self-gating: reproduces client:idle + client:visible without a framework runtime.
+    // Self-gating: reproduces client:idle + client:visible without a framework
+    // runtime. The fixed full-viewport layer tracks the cursor in VIEWPORT
+    // coordinates (clientX/clientY), so blob offsets are plain viewport px.
     const boot = () => {
-        const hero = document.querySelector( '[data-fluid-hero]' )
-        if( !hero ) { return }
+        const bg = document.querySelector( '[data-fluid-hero]' )
+        if( !bg ) { return }
 
         const okMotion = matchMedia( '(prefers-reduced-motion: no-preference)' ).matches
         const fine = matchMedia( '(hover: hover) and (pointer: fine)' ).matches
@@ -147,21 +162,21 @@ const { title = 'Personal Brand', tagline = '' } = Astro.props
         // Reduced/Static tiers: leave the pure-CSS aurora as-is. No listeners, no loop.
         if( !okMotion || !fine || weak ) { return }
 
-        const lead = hero.querySelector( '.fh-blob--lead' )
-        const trail = hero.querySelector( '.fh-blob--trail' )
-        const content = hero.querySelector( '.fh-content' )
+        const lead = bg.querySelector( '.fh-blob--lead' )
+        const trail = bg.querySelector( '.fh-blob--trail' )
+        const content = document.querySelector( '.fh-content' )
 
-        let rect = hero.getBoundingClientRect()
-        new ResizeObserver( () => { rect = hero.getBoundingClientRect() } ).observe( hero )
+        let vw = window.innerWidth, vh = window.innerHeight
+        window.addEventListener( 'resize', () => { vw = window.innerWidth; vh = window.innerHeight }, { passive: true } )
 
-        let tx = rect.width / 2, ty = rect.height * 0.4
+        let tx = vw / 2, ty = vh * 0.4
         let lx = tx, ly = ty
         let sx = tx, sy = ty
         let running = false, raf = 0, slowFrames = 0, lastT = 0
 
         const onMove = ( e ) => {
-            tx = e.clientX - rect.left
-            ty = e.clientY - rect.top
+            tx = e.clientX
+            ty = e.clientY
             if( !running ) { start() }
         }
 
@@ -179,8 +194,8 @@ const { title = 'Personal Brand', tagline = '' } = Astro.props
 
             // whisper of headline parallax (max ~10px), compositor-only
             if( content ) {
-                const px = ( ( lx / rect.width ) - 0.5 ) * -16
-                const py = ( ( ly / rect.height ) - 0.5 ) * -10
+                const px = ( ( lx / vw ) - 0.5 ) * -16
+                const py = ( ( ly / vh ) - 0.5 ) * -10
                 content.style.setProperty( '--px', px.toFixed( 2 ) + 'px' )
                 content.style.setProperty( '--py', py.toFixed( 2 ) + 'px' )
             }
@@ -203,15 +218,11 @@ const { title = 'Personal Brand', tagline = '' } = Astro.props
         const stop = ( degrade ) => {
             running = false
             cancelAnimationFrame( raf )
-            if( degrade ) { hero.querySelectorAll( '.fh-blob' ).forEach( ( b ) => { b.style.display = 'none' } ) }
+            if( degrade ) { bg.querySelectorAll( '.fh-blob' ).forEach( ( b ) => { b.style.display = 'none' } ) }
         }
 
-        hero.addEventListener( 'pointermove', onMove, { passive: true } )
+        window.addEventListener( 'pointermove', onMove, { passive: true } )
         document.addEventListener( 'visibilitychange', () => { if( document.hidden ) { stop( false ) } } )
-
-        new IntersectionObserver( ( [ e ] ) => {
-            if( !e.isIntersecting ) { stop( false ) }
-        }, { threshold: 0 } ).observe( hero )
     }
 
     if( 'requestIdleCallback' in window ) { requestIdleCallback( boot ) }

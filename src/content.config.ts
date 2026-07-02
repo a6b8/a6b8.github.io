@@ -16,7 +16,7 @@ const blog = defineCollection( {
     schema: docsSchema( {
         extend: z.object( {
             date: z.coerce.date(),
-            author: z.string().default( 'Personal Brand' ),
+            author: z.string().default( 'a6b8' ),
             tags: z.array( z.string() ).default( [] ),
             cover: z.string().optional(),
             draft: z.boolean().default( false ),
