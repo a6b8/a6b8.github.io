@@ -33,7 +33,8 @@ export default defineConfig({
             components: {
                 Header: './src/components/Header.astro',
                 Footer: './src/components/Footer.astro',
-                MobileMenuToggle: './src/components/MobileMenuToggle.astro'
+                MobileMenuToggle: './src/components/MobileMenuToggle.astro',
+                Search: './src/components/SearchCustom.astro'
             },
             social: [
                 { icon: 'github', label: 'GitHub', href: 'https://github.com/a6b8' }
