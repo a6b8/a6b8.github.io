@@ -1,0 +1,252 @@
+---
+// Custom header — ported from memo-init Header.astro (Memo 015, Kap 4), rebranded
+// for personal-brand (nav links, own site sections). Single locale (EN).
+//
+// Bug 1 fix (05-memo-init-bugs finding #1): splash pages (home + blog) render NO
+// Starlight sidebar toggle, so on mobile they had no navigation at all. This header
+// carries a self-contained hamburger + nav sheet that works on every page type. It
+// is auto-hidden on docs pages (where Starlight's own starlight-menu-button exists)
+// via `body:has(starlight-menu-button)` so there is never a double hamburger.
+import config from 'virtual:starlight/user-config';
+
+import Search from 'virtual:starlight/components/Search';
+import SiteTitle from 'virtual:starlight/components/SiteTitle';
+
+const shouldRenderSearch =
+    config.pagefind || config.components.Search !== '@astrojs/starlight/components/Search.astro';
+
+const path = Astro.url.pathname;
+
+const navLinks = [
+    { text: 'Docs', href: '/docs/overview/', match: '/docs' },
+    { text: 'Spec', href: '/specification/overview/', match: '/specification' },
+    { text: 'Blog', href: '/blog/', match: '/blog' }
+];
+---
+
+<div class="header site-header">
+    <div class="header__left">
+        <div class="title-wrapper sl-flex">
+            <SiteTitle />
+        </div>
+        <nav class="header__nav sl-hidden md:sl-flex" aria-label="Main navigation">
+            {navLinks.map((link) => (
+                <a
+                    href={link.href}
+                    class={`header__nav-link ${path.indexOf(link.match) !== -1 ? 'is-active' : ''}`}
+                >
+                    {link.text}
+                </a>
+            ))}
+        </nav>
+    </div>
+
+    <div class="header__right sl-flex print:hidden">
+        <div class="header__search sl-flex">
+            {shouldRenderSearch && <Search />}
+        </div>
+
+        <button
+            class="header__mobile-toggle"
+            aria-expanded="false"
+            aria-controls="header-mobile-nav"
+            aria-label="Open navigation menu"
+        >
+            <svg class="header__mobile-icon header__mobile-icon--open" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+                <line x1="4" y1="7" x2="20" y2="7" /><line x1="4" y1="12" x2="20" y2="12" /><line x1="4" y1="17" x2="20" y2="17" />
+            </svg>
+            <svg class="header__mobile-icon header__mobile-icon--close" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+                <line x1="6" y1="6" x2="18" y2="18" /><line x1="18" y1="6" x2="6" y2="18" />
+            </svg>
+        </button>
+    </div>
+
+    <nav id="header-mobile-nav" class="header__mobile-nav" aria-label="Site navigation" hidden>
+        {navLinks.map((link) => (
+            <a
+                href={link.href}
+                class={`header__mobile-link ${path.indexOf(link.match) !== -1 ? 'is-active' : ''}`}
+            >
+                {link.text}
+            </a>
+        ))}
+    </nav>
+</div>
+
+<style>
+    .site-header {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 1rem;
+        align-items: center;
+        height: 100%;
+    }
+
+    .header__left {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+    }
+
+    .title-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        overflow: clip;
+        padding: 0.25rem;
+        margin: -0.25rem;
+        min-width: 0;
+    }
+
+    .header__nav {
+        display: flex;
+        gap: 1.25rem;
+        align-items: center;
+    }
+
+    .header__nav-link {
+        color: var(--text-inactive);
+        font-size: 14px;
+        font-weight: 500;
+        text-decoration: none;
+        padding: 0.25rem 0;
+        transition: color 0.15s;
+    }
+
+    .header__nav-link:hover {
+        color: var(--text-primary);
+    }
+
+    .header__nav-link.is-active {
+        color: var(--text-primary);
+        font-weight: 600;
+    }
+
+    /* Bug 7 fix: visible focus ring on custom nav links (keyboard users). */
+    .header__nav-link:focus-visible,
+    .header__mobile-toggle:focus-visible,
+    .header__mobile-link:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
+        border-radius: 4px;
+        color: var(--text-primary);
+    }
+
+    .header__right {
+        justify-self: end;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .header__search {
+        max-width: 220px;
+        align-items: center;
+    }
+
+    /* Self-contained mobile toggle — hidden by default (desktop shows .header__nav). */
+    .header__mobile-toggle {
+        display: none;
+        align-items: center;
+        justify-content: center;
+        min-width: 44px;
+        min-height: 44px;
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        color: var(--text-primary);
+        cursor: pointer;
+        padding: 0;
+    }
+
+    .header__mobile-icon--close { display: none; }
+    .header__mobile-toggle[aria-expanded='true'] .header__mobile-icon--open { display: none; }
+    .header__mobile-toggle[aria-expanded='true'] .header__mobile-icon--close { display: block; }
+    .header__mobile-toggle[aria-expanded='true'] {
+        background: var(--sidebar-active-bg);
+        color: var(--accent);
+        border-color: var(--accent);
+    }
+
+    /* Drop-down nav sheet (splash pages) — sits below the fixed header. */
+    .header__mobile-nav {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        flex-direction: column;
+        background: var(--bg-card);
+        border-bottom: 1px solid var(--border);
+        border-top: 1px solid var(--border);
+        padding: 0.5rem 1rem 0.75rem;
+        z-index: 90;
+    }
+
+    .header__mobile-nav:not([hidden]) {
+        display: flex;
+    }
+
+    .header__mobile-link {
+        color: var(--text-inactive);
+        font-size: 15px;
+        font-weight: 500;
+        text-decoration: none;
+        padding: 0.6rem 0.25rem;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .header__mobile-link:last-child { border-bottom: none; }
+    .header__mobile-link:hover,
+    .header__mobile-link.is-active { color: var(--text-primary); }
+
+    @media (max-width: 50rem) {
+        .header__left {
+            gap: 0.5rem;
+        }
+
+        .header__search {
+            max-width: 100%;
+        }
+
+        /* Show the self-contained hamburger on mobile — EXCEPT on docs pages,
+         * where Starlight renders its own starlight-menu-button (sidebar toggle).
+         * Prevents a double hamburger; splash pages get real nav (Bug 1). */
+        .header__mobile-toggle {
+            display: inline-flex;
+        }
+
+        :global(body:has(starlight-menu-button)) .header__mobile-toggle {
+            display: none;
+        }
+    }
+</style>
+
+<script>
+    const wire = () => {
+        const toggle = document.querySelector('.header__mobile-toggle')
+        const nav = document.getElementById('header-mobile-nav')
+        if( !toggle || !nav || toggle.dataset.wired === 'true' ) { return }
+        toggle.dataset.wired = 'true'
+
+        const setOpen = ( open ) => {
+            toggle.setAttribute( 'aria-expanded', String( open ) )
+            toggle.setAttribute( 'aria-label', open ? 'Close navigation menu' : 'Open navigation menu' )
+            nav.toggleAttribute( 'hidden', !open )
+        }
+
+        toggle.addEventListener( 'click', () => {
+            const open = toggle.getAttribute( 'aria-expanded' ) === 'true'
+            setOpen( !open )
+        } )
+
+        document.addEventListener( 'keyup', ( e ) => {
+            if( e.key === 'Escape' && toggle.getAttribute( 'aria-expanded' ) === 'true' ) {
+                setOpen( false )
+                toggle.focus()
+            }
+        } )
+    }
+
+    wire()
+    document.addEventListener( 'astro:page-load', wire )
+</script>

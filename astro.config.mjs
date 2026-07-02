@@ -16,6 +16,10 @@ export default defineConfig({
     integrations: [
         starlight({
             title: 'Personal Brand',
+            logo: {
+                src: './src/assets/logo.svg',
+                replacesTitle: true
+            },
             favicon: '/favicon.svg',
             head: [
                 { tag: 'link', attrs: { rel: 'apple-touch-icon', sizes: '180x180', href: '/apple-touch-icon.png' } },
@@ -25,6 +29,14 @@ export default defineConfig({
             ],
             customCss: [
                 './src/styles/theme.css'
+            ],
+            components: {
+                Header: './src/components/Header.astro',
+                Footer: './src/components/Footer.astro',
+                MobileMenuToggle: './src/components/MobileMenuToggle.astro'
+            },
+            social: [
+                { icon: 'github', label: 'GitHub', href: 'https://github.com/a6b8' }
             ],
             sidebar: [
                 { label: 'Docs', autogenerate: { directory: 'docs' } },
