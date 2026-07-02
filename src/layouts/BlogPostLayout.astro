@@ -40,7 +40,11 @@ const frontmatter = {
     description: post.data.description || '',
     template: 'splash',
     tableOfContents: false,
-    pagefind: true
+    pagefind: true,
+    // Forward per-post <head> tags (e.g. rel=canonical back to the original
+    // Medium source for republished posts) into the Starlight frame, which the
+    // layout otherwise drops.
+    ...( post.data.head ? { head: post.data.head } : {} )
 }
 ---
 
