@@ -16,6 +16,16 @@ export default defineConfig({
     integrations: [
         starlight({
             title: 'Personal Brand',
+            favicon: '/favicon.svg',
+            head: [
+                { tag: 'link', attrs: { rel: 'apple-touch-icon', sizes: '180x180', href: '/apple-touch-icon.png' } },
+                { tag: 'link', attrs: { rel: 'icon', type: 'image/png', sizes: '32x32', href: '/favicon-32.png' } },
+                { tag: 'link', attrs: { rel: 'icon', type: 'image/png', sizes: '192x192', href: '/favicon-192.png' } },
+                { tag: 'link', attrs: { rel: 'icon', type: 'image/png', sizes: '512x512', href: '/favicon-512.png' } }
+            ],
+            customCss: [
+                './src/styles/theme.css'
+            ],
             sidebar: [
                 { label: 'Docs', autogenerate: { directory: 'docs' } },
                 {

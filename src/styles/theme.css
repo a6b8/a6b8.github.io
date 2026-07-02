@@ -1,0 +1,190 @@
+/*
+ * personal-brand theme — GitHub-dark surface logic with a warm personal accent.
+ * Ported from memo-init.github.io/src/styles/theme.css (Memo 015), adapted:
+ *   - accent teal #5ee0d6  ->  Amber/Gold #f5b74d (F2 = A, dark-only F5 = A)
+ *   - splash-cleanup selectors .pencil-hero -> .fluid-hero (bespoke Aurora hero)
+ *   - Bug 6 fix: --sl-color-gray-3 remapped to --text-inactive (AA-safe body text)
+ *   - Bug 2 fix: hamburger reposition unified to the 50rem nav-hide boundary
+ *
+ * Contrast (measured on --bg-canvas #0d1117, WCAG AA >= 4.5:1 body text):
+ *   accent #f5b74d on #0d1117        -> ~9.0:1   (AA pass)
+ *   accent-high #ffd27a on #0d1117   -> ~12.6:1  (AA pass)
+ *   text-primary #f0f6fc on #0d1117  -> 17.39:1  (AA pass)
+ *   text-inactive #8b949e on #0d1117 -> 6.15:1   (AA pass)
+ */
+
+/* Hide theme selector — dark-only (F5 = A); tokens render dark in both themes */
+starlight-theme-select {
+    display: none !important;
+}
+
+:root,
+[data-theme='light'],
+[data-theme='dark'] {
+    /* surface tokens (GitHub dark) */
+    --bg-canvas: #0d1117;
+    --bg-card: #161b22;
+    --border: #30363d;
+    --sidebar-active-bg: #33291a;   /* amber-tinted (memo-init used teal-tinted #11302f) */
+    --accent: #f5b74d;              /* personal Amber/Gold (F2 = A) */
+    --accent-high: #ffd27a;         /* lighter amber for emphasis/hover */
+    --text-primary: #f0f6fc;
+    --text-inactive: #8b949e;
+    --group-title: #6e7681;         /* decorative separators only (Bug 6: not body text) */
+
+    /* Starlight token mapping */
+    --sl-color-accent-low: #33291a;
+    --sl-color-accent: var(--accent);
+    --sl-color-accent-high: var(--accent-high);
+    --sl-color-bg: var(--bg-canvas);
+    --sl-color-bg-nav: var(--bg-canvas);
+    --sl-color-bg-sidebar: var(--bg-card);
+    --sl-color-bg-inline-code: var(--bg-card);
+    --sl-color-hairline-light: var(--border);
+    --sl-color-hairline: var(--border);
+    --sl-color-hairline-shade: var(--bg-card);
+    --sl-color-text: var(--text-primary);
+    --sl-color-text-accent: var(--accent);
+    --sl-color-gray-1: var(--text-primary);
+    --sl-color-gray-2: var(--text-inactive);
+    --sl-color-gray-3: var(--text-inactive);  /* Bug 6 fix: was --group-title (~4.0:1, AA fail) */
+    --sl-color-gray-4: var(--border);
+    --sl-color-gray-5: var(--bg-card);
+    --sl-color-gray-6: var(--bg-canvas);
+    --sl-color-black: var(--bg-canvas);
+    --sl-color-white: var(--text-primary);
+}
+
+/* Site-wide radial gradient — amber tint, same alphas */
+html {
+    background-color: var(--bg-canvas);
+    background-image:
+        radial-gradient( ellipse 80% 60% at 20% 0%, rgba( 245, 183, 77, 0.06 ) 0%, rgba( 245, 183, 77, 0 ) 60% ),
+        radial-gradient( ellipse 70% 50% at 80% 100%, rgba( 245, 183, 77, 0.04 ) 0%, rgba( 245, 183, 77, 0 ) 60% );
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+}
+
+/* Transparency so the html gradient shows through */
+body {
+    background-color: transparent;
+}
+
+body > .page,
+body > .page > .main-frame,
+.main-pane {
+    background-color: transparent !important;
+}
+
+.content-panel {
+    background: transparent;
+}
+
+/* ============ SPLASH CLEANUP ============
+ * The splash template renders <h1 id="_top"> from the frontmatter title, which
+ * duplicates the visible hero/section headline. Suppress it, scoped via :has()
+ * to landing + blog pages only — frontmatter.title stays for <title>/SEO.
+ * Landing uses the bespoke .fluid-hero (not memo-init's .pencil-hero). */
+
+body:has(.fluid-hero) hr,
+body:has(.fluid-hero) .main-pane > hr {
+    display: none !important;
+}
+
+body:has(.fluid-hero) .content-panel {
+    border: none !important;
+}
+
+body:has(.fluid-hero) h1#_top {
+    display: none !important;
+}
+
+/* Blog index + post supply their own styled title, so Starlight's splash
+ * <h1 id="_top"> is a visible duplicate. Suppress it and collapse the empty
+ * content-panel band + divider it would otherwise leave behind. */
+body:has(.blog-index) h1#_top,
+body:has(.blog-post) h1#_top {
+    display: none !important;
+}
+
+body:has(.blog-index) .content-panel:has(h1#_top),
+body:has(.blog-post) .content-panel:has(h1#_top) {
+    display: none !important;
+}
+
+body:has(.blog-index) .content-panel,
+body:has(.blog-post) .content-panel {
+    border-top: none !important;
+}
+
+/* ============ HEADER GEOMETRY ============ */
+
+:root {
+    --sl-nav-height: 64px;
+}
+
+header.header {
+    background: var(--bg-canvas);
+    border-bottom: 1px solid var(--border);
+    height: 64px;
+    padding: 0 1rem;
+}
+
+/* Hide the top-nav links below Starlight's md breakpoint (50rem). The
+ * component's scoped .header__nav { display: flex } is unlayered and always
+ * beats the layered sl-hidden utility — an explicit unlayered rule is required.
+ * Splash pages get a self-contained hamburger inside Header.astro (Bug 1 fix). */
+@media (max-width: 50rem) {
+    header.header .header__nav {
+        display: none !important;
+    }
+
+    :root {
+        --sl-nav-height: 56px;
+    }
+
+    header.header {
+        height: 56px;
+        padding: 0 0.75rem;
+    }
+
+    /* Bug 2 fix: nav hides AND the docs hamburger repositions at the SAME
+     * boundary (50rem), removing the 769-800px band where the fixed
+     * starlight-menu-button sat on top of the logo.
+     * starlight-menu-button lives in nav.sidebar (docs pages only). */
+    starlight-menu-button {
+        position: fixed !important;
+        top: 8px !important;
+        right: 8px !important;
+        left: auto !important;
+        z-index: 100 !important;
+    }
+
+    starlight-menu-button button {
+        background: var(--bg-card) !important;
+        border: 1px solid var(--border) !important;
+        border-radius: 6px !important;
+        min-width: 44px !important;
+        min-height: 44px !important;
+        top: 6px !important;
+        inset-inline-start: auto !important;
+        inset-inline-end: 8px !important;
+    }
+
+    /* The fixed docs hamburger (44px + 8px inset) floats above the right-aligned
+     * search trigger; reserve its footprint so search stays tappable on docs
+     * routes. Splash pages have no menu button, so search stays flush there. */
+    body:has(starlight-menu-button) .header__search {
+        margin-inline-end: 56px;
+    }
+}
+
+/* Search: section tag above result titles */
+.pagefind-section-tag {
+    font-size: 11px;
+    color: var(--text-inactive, #8a8f99);
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    margin: 0 0 4px;
+    font-weight: 500;
+}
