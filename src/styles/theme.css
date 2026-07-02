@@ -95,21 +95,34 @@ body:has(.fluid-hero) .content-panel {
     border: none !important;
 }
 
-body:has(.fluid-hero) h1#_top {
-    display: none !important;
-}
-
-/* Blog index + post supply their own styled title, so Starlight's splash
- * <h1 id="_top"> is a visible duplicate. Suppress it and collapse the empty
- * content-panel band + divider it would otherwise leave behind. */
+/* Bug 4 fix (05-memo-init-bugs finding #4): Starlight's "Skip to content" link
+ * targets #_top (the frontmatter <h1>). On splash/blog pages we hide that
+ * duplicate title, but hiding it with display:none made the skip link a no-op
+ * (you cannot focus/scroll to a display:none element). Instead visually-hide it
+ * with the sr-only clip pattern so #_top stays a valid, focusable skip target at
+ * the top of the content. */
+body:has(.fluid-hero) h1#_top,
 body:has(.blog-index) h1#_top,
 body:has(.blog-post) h1#_top {
-    display: none !important;
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
 }
 
+/* The frontmatter-title content-panel would otherwise leave an empty band with a
+ * divider. Collapse it visually (padding/border/min-height) WITHOUT display:none,
+ * so the sr-only #_top inside it stays in the accessibility tree (skip target). */
 body:has(.blog-index) .content-panel:has(h1#_top),
 body:has(.blog-post) .content-panel:has(h1#_top) {
-    display: none !important;
+    padding-block: 0 !important;
+    min-height: 0 !important;
+    border: none !important;
 }
 
 body:has(.blog-index) .content-panel,

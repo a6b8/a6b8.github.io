@@ -183,6 +183,15 @@ const frontmatter = {
     .blog-post__share-link { color: var(--accent); text-decoration: none; font-size: 13px; font-weight: 500; background: none; border: none; cursor: pointer; padding: 0; font-family: inherit; }
     .blog-post__share-link:hover { text-decoration: underline; }
 
+    /* Bug 7 fix: visible focus ring for keyboard users on interactive controls. */
+    .blog-post__back:focus-visible,
+    .blog-post__share-link:focus-visible,
+    .blog-post__related-card:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
+        border-radius: 4px;
+    }
+
     .blog-post__related { margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--border); }
     .blog-post__related-title { font-size: 1.25rem; font-weight: 700; margin-bottom: 1rem; }
     .blog-post__related-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1rem; }

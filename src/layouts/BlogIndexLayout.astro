@@ -232,6 +232,16 @@ const frontmatter = {
     .blog-index__card-desc { color: var(--sl-color-gray-3); font-size: 14px; line-height: 1.5; margin: 0 0 1rem; }
 
     [data-category][hidden] { display: none !important; }
+
+    /* Bug 7 fix: visible focus ring for keyboard users on interactive controls. */
+    .blog-index__filter:focus-visible,
+    .blog-index__card:focus-visible,
+    .blog-index__featured:focus-visible,
+    .blog-index__rss:focus-visible {
+        outline: 2px solid var(--sl-color-text-accent);
+        outline-offset: 2px;
+        border-color: var(--sl-color-text-accent);
+    }
 </style>
 
 <script>
