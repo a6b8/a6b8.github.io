@@ -45,6 +45,12 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      # Build-time Mermaid (rehype-mermaid inline-svg) renders diagrams via a
+      # headless Chromium. Install it before the build so diagram pages don't
+      # render with an empty body.
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
       - name: Build
         run: npm run build
         env:
