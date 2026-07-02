@@ -1,0 +1,219 @@
+---
+// src/components/FluidHero.astro — bespoke landing-only "Aurora Spotlight" hero
+// (Memo 015, Kap 6; spec: context/015-website-relaunch-research/03-fluid-landing-research.md).
+//
+// Zero deps. Renders a static WARM aurora by default (pure CSS = the
+// prefers-reduced-motion baseline); the client script UPGRADES to an interactive,
+// compositor-only cursor-follow glow only when it is safe (fine pointer, motion OK,
+// capable device). 3-tier auto-select: Full / Reduced / Static. No canvas, no WebGL,
+// no filter:blur — softness comes from radial-gradient falloff. The rAF loop
+// self-stops at rest / off-screen / hidden tab, so it costs ~0% CPU idle.
+const { title = 'Personal Brand', tagline = '' } = Astro.props
+---
+<section class="fluid-hero" data-fluid-hero>
+    <div class="fh-aurora" aria-hidden="true"></div>
+    <div class="fh-blob fh-blob--lead" aria-hidden="true"></div>
+    <div class="fh-blob fh-blob--trail" aria-hidden="true"></div>
+
+    <div class="fh-content">
+        <h1 class="fh-title">{title}</h1>
+        {tagline && <p class="fh-tagline">{tagline}</p>}
+        <div class="fh-actions"><slot /></div>
+    </div>
+</section>
+
+<style>
+    .fluid-hero {
+        position: relative;
+        overflow: clip;
+        min-height: clamp(26rem, 68vh, 42rem);
+        display: grid;
+        place-items: center;
+        margin: -1.5rem -1.5rem 1.5rem;
+        border-radius: 0 0 18px 18px;
+        /* two CSS vars the script writes; default = centered */
+        --tx: 50%; --ty: 40%;
+        --tx2: 50%; --ty2: 40%;
+        background: var(--bg-canvas, #0d1117);
+        isolation: isolate;
+    }
+
+    .fh-content {
+        position: relative;
+        z-index: 2;
+        text-align: center;
+        padding: 2rem 1.5rem;
+        max-width: 46rem;
+        /* whisper of headline parallax written by the script (compositor-only) */
+        transform: translate3d(var(--px, 0), var(--py, 0), 0);
+    }
+    .fh-title {
+        font-size: clamp(2.5rem, 7vw, 4.75rem);
+        font-weight: 900;
+        line-height: 1.02;
+        letter-spacing: -0.03em;
+        margin: 0;
+        color: var(--text-primary, #f0f6fc);
+        background: linear-gradient(180deg, #ffffff 0%, #ffe6b0 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    .fh-tagline {
+        margin: 1.25rem auto 0;
+        font-size: clamp(1rem, 2.2vw, 1.25rem);
+        line-height: 1.6;
+        color: var(--text-inactive, #8b949e);
+        max-width: 34rem;
+    }
+    .fh-actions {
+        display: flex;
+        gap: 0.75rem;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-top: 2rem;
+    }
+
+    /* STATIC WARM AURORA — always on, pure CSS, cheap. reduced-motion baseline. */
+    .fh-aurora {
+        position: absolute;
+        inset: -20%;
+        z-index: 0;
+        pointer-events: none;
+        background:
+            radial-gradient(40% 55% at 30% 30%, hsl(38 95% 58% / .30), transparent 70%),
+            radial-gradient(45% 50% at 72% 62%, hsl(45 98% 62% / .24), transparent 70%),
+            radial-gradient(35% 45% at 50% 82%, hsl(24 92% 56% / .20), transparent 70%);
+        filter: saturate(1.08);
+    }
+
+    /* CURSOR BLOBS — soft gradient falloff (NO filter:blur), transform-only. */
+    .fh-blob {
+        position: absolute;
+        z-index: 1;
+        pointer-events: none;
+        width: 42rem;
+        height: 42rem;
+        left: 0;
+        top: 0;
+        margin-left: -21rem;
+        margin-top: -21rem;
+        background: radial-gradient(closest-side, hsl(42 98% 62% / .40), transparent 70%);
+        transform: translate3d(var(--tx), var(--ty), 0);
+        will-change: transform;
+        mix-blend-mode: screen;
+    }
+    .fh-blob--trail {
+        width: 30rem;
+        height: 30rem;
+        margin-left: -15rem;
+        margin-top: -15rem;
+        background: radial-gradient(closest-side, hsl(28 95% 58% / .32), transparent 70%);
+        transform: translate3d(var(--tx2), var(--ty2), 0);
+    }
+
+    /* REDUCED tier: slow ambient drift, compositor-only, no input needed. */
+    @media (prefers-reduced-motion: no-preference) {
+        .fh-aurora { animation: fh-drift 24s ease-in-out infinite alternate; }
+    }
+    @keyframes fh-drift {
+        to { transform: translate3d(2%, -2%, 0) scale(1.04); }
+    }
+
+    /* Static tier: never expose blob motion to reduced-motion users. */
+    @media (prefers-reduced-motion: reduce) {
+        .fh-blob { display: none; }
+        .fh-aurora { animation: none; }
+    }
+
+    @media (max-width: 50rem) {
+        .fluid-hero { margin: -1rem -0.75rem 1rem; min-height: clamp(22rem, 60vh, 32rem); }
+    }
+</style>
+
+<script>
+    // Self-gating: reproduces client:idle + client:visible without a framework runtime.
+    const boot = () => {
+        const hero = document.querySelector( '[data-fluid-hero]' )
+        if( !hero ) { return }
+
+        const okMotion = matchMedia( '(prefers-reduced-motion: no-preference)' ).matches
+        const fine = matchMedia( '(hover: hover) and (pointer: fine)' ).matches
+        const cores = navigator.hardwareConcurrency ?? 4
+        const memory = navigator.deviceMemory ?? 4
+        const saveData = navigator.connection?.saveData === true
+        const weak = cores <= 4 || memory < 4 || saveData
+
+        // Reduced/Static tiers: leave the pure-CSS aurora as-is. No listeners, no loop.
+        if( !okMotion || !fine || weak ) { return }
+
+        const lead = hero.querySelector( '.fh-blob--lead' )
+        const trail = hero.querySelector( '.fh-blob--trail' )
+        const content = hero.querySelector( '.fh-content' )
+
+        let rect = hero.getBoundingClientRect()
+        new ResizeObserver( () => { rect = hero.getBoundingClientRect() } ).observe( hero )
+
+        let tx = rect.width / 2, ty = rect.height * 0.4
+        let lx = tx, ly = ty
+        let sx = tx, sy = ty
+        let running = false, raf = 0, slowFrames = 0, lastT = 0
+
+        const onMove = ( e ) => {
+            tx = e.clientX - rect.left
+            ty = e.clientY - rect.top
+            if( !running ) { start() }
+        }
+
+        const frame = ( t ) => {
+            const dt = t - lastT
+            lastT = t
+            lx += ( tx - lx ) * 0.12
+            ly += ( ty - ly ) * 0.12
+            sx += ( tx - sx ) * 0.06
+            sy += ( ty - sy ) * 0.06
+            lead.style.setProperty( '--tx', lx + 'px' )
+            lead.style.setProperty( '--ty', ly + 'px' )
+            trail.style.setProperty( '--tx2', sx + 'px' )
+            trail.style.setProperty( '--ty2', sy + 'px' )
+
+            // whisper of headline parallax (max ~10px), compositor-only
+            if( content ) {
+                const px = ( ( lx / rect.width ) - 0.5 ) * -16
+                const py = ( ( ly / rect.height ) - 0.5 ) * -10
+                content.style.setProperty( '--px', px.toFixed( 2 ) + 'px' )
+                content.style.setProperty( '--py', py.toFixed( 2 ) + 'px' )
+            }
+
+            // watchdog: sustained slow frames => degrade to static and bail
+            if( dt > 50 && ++slowFrames > 12 ) { return stop( true ) }
+            else if( dt <= 50 ) { slowFrames = 0 }
+
+            // rest-detection: settle => stop the loop, idle at 0% CPU
+            const atRest = Math.hypot( tx - lx, ty - ly ) < 0.4 && Math.hypot( tx - sx, ty - sy ) < 0.4
+            if( atRest ) { return stop( false ) }
+            raf = requestAnimationFrame( frame )
+        }
+
+        const start = () => {
+            running = true
+            lastT = performance.now()
+            raf = requestAnimationFrame( frame )
+        }
+        const stop = ( degrade ) => {
+            running = false
+            cancelAnimationFrame( raf )
+            if( degrade ) { hero.querySelectorAll( '.fh-blob' ).forEach( ( b ) => { b.style.display = 'none' } ) }
+        }
+
+        hero.addEventListener( 'pointermove', onMove, { passive: true } )
+        document.addEventListener( 'visibilitychange', () => { if( document.hidden ) { stop( false ) } } )
+
+        new IntersectionObserver( ( [ e ] ) => {
+            if( !e.isIntersecting ) { stop( false ) }
+        }, { threshold: 0 } ).observe( hero )
+    }
+
+    if( 'requestIdleCallback' in window ) { requestIdleCallback( boot ) }
+    else { setTimeout( boot, 200 ) }
+</script>
