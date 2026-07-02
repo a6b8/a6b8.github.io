@@ -19,6 +19,9 @@ const formattedDate = post.data.date.toLocaleDateString( 'en-US', { year: 'numer
 const showDrafts = import.meta.env.DEV
 const allPosts = ( await getCollection( 'blog', ( { data } ) => showDrafts || !data.draft ) )
     .filter( ( p ) => p.id !== post.id )
+    // Deterministic order (Bug 8 companion): newest first with an id tiebreak,
+    // so the related-posts strip is stable across builds.
+    .sort( ( a, b ) => b.data.date.valueOf() - a.data.date.valueOf() || a.id.localeCompare( b.id ) )
     .slice( 0, 3 )
 
 const canonicalUrl = `${ base }/${ post.id }/`
@@ -166,7 +169,7 @@ const frontmatter = {
      * same active state (accent + sidebar-active-bg), same typographic
      * rhythm, smooth transitions. */
     .blog-post__toc { position: sticky; top: 6rem; align-self: flex-start; padding: 1rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; max-height: calc(100vh - 8rem); overflow-y: auto; }
-    .blog-post__toc-title { font-size: 13px; font-weight: 700; color: var(--group-title); letter-spacing: 0.8px; margin-bottom: 0.75rem; text-transform: uppercase; }
+    .blog-post__toc-title { font-size: 13px; font-weight: 700; color: var(--text-inactive); letter-spacing: 0.8px; margin-bottom: 0.75rem; text-transform: uppercase; }
     .blog-post__toc-list { list-style: none; padding: 0; margin: 0; }
     .blog-post__toc-item { margin: 0.15rem 0; font-size: 14px; }
     .blog-post__toc-item a { color: var(--text-inactive); text-decoration: none; display: block; padding: 4px 12px; border-radius: 6px; transition: background-color 0.15s ease, color 0.15s ease; }
